@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Admin Panel</title>
+  <!-- Nothing to see here :) -->
+
+
+  <style>
+    /* Global Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f9;
+      color: #333;
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      max-width: 800px; /* Reduced width for a narrower layout */
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Header / Title */
+    h1, h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    h2 {
+      margin-top: 40px;
+      font-size: 1.25rem;
+      color: #34495e;
+    }
+
+    /* Back Button */
+    .back-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .back-button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Messages */
+    .message {
+      margin-bottom: 20px;
+      padding: 12px;
+      background-color: #e8f5e9;
+      border: 1px solid #4caf50;
+      color: #4caf50;
+      border-radius: 5px;
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .form-section form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .form-section form label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .form-section form input,
+    .form-section form select,
+    .form-section form button {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    .form-section form button {
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border: none;
+    }
+
+    .form-section form button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Tables */
+    .table-section {
+      margin-top: 40px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    table thead {
+      background-color: #f4f4f4;
+    }
+
+    table th,
+    table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      color: #333;
+      font-weight: 600;
+    }
+
+    /* Example of color emphasis in table headers */
+    table th.color-blue {
+      color: #0056b3;
+    }
+
+    /* Responsive Adjustments (Optional) */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 10px;
+      }
+
+      table th, table td {
+        padding: 8px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Back to Leaderboard Button -->
+    <a href="/" class="back-button">Back to Leaderboard</a>
+
+    <h1>Admin Panel</h1>
+
+    <!-- Display Message -->
+    {% if message %}
+    <div class="message">{{ message }}</div>
+    {% endif %}
+
+    <!-- Add Transaction -->
+    <div class="form-section">
+      <h2>Add Transaction</h2>
+      <form method="POST">
+        <select name="transaction_agent_id" required>
+          <option value="">Select Agent</option>
+          {% for agent in agents %}
+          <option value="{{ agent[0] }}">{{ agent[1] }}</option>
+          {% endfor %}
+        </select>
+        <input type="number" step="0.01" name="transaction_volume" placeholder="Transaction Amount" required>
+        <input type="date" name="transaction_date" required>
+        <input type="text" name="transaction_address" placeholder="Property Address" required>
+        <button type="submit" name="add_transaction">Add Transaction</button>
+      </form>
+    </div>
+
+    <!-- Add Agent -->
+    <div class="form-section">
+      <h2>Add New Agent</h2>
+      <form method="POST">
+        <input type="text" name="agent_name" placeholder="Agent Name" required>
+        <button type="submit" name="add_agent">Add Agent</button>
+      </form>
+    </div>
+
+    <!-- Remove Agent -->
+    <div class="form-section">
+      <h2>Remove Agent</h2>
+      <form method="POST">
+        <select name="agent_id" required>
+          <option value="">Select Agent</option>
+          {% for agent in agents %}
+          <option value="{{ agent[0] }}">{{ agent[1] }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" name="remove_agent">Remove Agent</button>
+      </form>
+    </div>
+
+    <!-- Remove Transaction -->
+    <div class="form-section">
+      <h2>Remove Transaction</h2>
+      <form method="POST">
+        <select name="transaction_id" required>
+          <option value="">Select Transaction</option>
+          {% for transaction in transactions %}
+          <option value="{{ transaction[0] }}">
+            Transaction #{{ transaction[0] }}
+            (Agent: {{ transaction[1] }},
+             ${{ "{:,.2f}".format(transaction[2]) }},
+             Date: {{ transaction[3] }})
+          </option>
+          {% endfor %}
+        </select>
+        <button type="submit" name="remove_transaction">Remove Transaction</button>
+      </form>
+    </div>
+
+
+
+    <!-- Current Agents -->
+    <div class="table-section">
+      <h2>Current Agents</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for agent in agents %}
+          <tr>
+            <td>{{ agent[0] }}</td>
+            <td>{{ agent[1] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Search Transactions -->
+    <div class="form-section">
+      <h2>Search Transactions</h2>
+      <form method="GET" action="/admin">
+        <input type="text" name="search_query" placeholder="Search by Agent, Address, or Date">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <!-- Current Transactions -->
+    <div class="table-section">
+      <h2>Current Transactions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Agent</th>
+            <th>Volume</th>
+            <th>Date</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transaction in transactions %}
+          <tr>
+            <td>{{ transaction[0] }}</td>
+            <td>{{ transaction[1] }}</td>
+            <td>${{ "{:.2f}".format(transaction[2]) }}</td>
+            <td>{{ transaction[3] }}</td>
+            <td>{{ transaction[4] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+/* Container */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* Headings */
+h1, h2 {
+    text-align: center;
+    color: #0e4c92;
+}
+
+/* Form Section */
+.form-section {
+    margin-bottom: 30px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h2 {
+    margin-bottom: 20px;
+}
+
+form input, form select, form button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    background-color: #0e4c92;
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #092c5c;
+}
+
+/* Leaderboard Section */
+.leaderboard-section {
+    margin-bottom: 40px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #0e4c92;
+    color: white;
+    text-align: center;
+}
+
+table td {
+    text-align: center;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table tr:hover {
+    background-color: #ddd;
+}
+
+/* Chart Section */
+.chart-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.chart-section button {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #0e4c92;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chart-section button:hover {
+    background-color: #092c5c;
+}
+
+.chart {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    form input, form select, form button {
+        font-size: 14px;
+    }
+
+    table th, table td {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .chart-section button {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+}

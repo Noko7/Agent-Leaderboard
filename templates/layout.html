@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agent Leaderboard</title>
+  <style>
+    /* Basic Reset / Body Style */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background-color: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 10px;
+      text-align: center; /* ensures center alignment for fallback */
+    }
+    .header-content {
+      display: inline-flex;          /* put logo + text on same line */
+      align-items: center;           /* vertically center them */
+      justify-content: center;       /* horizontally center as a group */
+      gap: 15px;                     /* space between logo and text */
+    }
+    .header-content img {
+      width: 120px;      /* Default logo width */
+      height: auto;      /* Keep aspect ratio */
+      max-width: 100%;   /* Responsiveness, so it doesn't overflow container */
+    }
+    .header-content h1 {
+      margin: 0;
+      font-size: 2rem;
+      white-space: nowrap; /* Keep 'Agent Leaderboard' in one line if possible */
+    }
+
+    /* MAIN CONTENT */
+    .container {
+      flex: 1; /* Let this grow/shrink to fill space */
+      
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .graphs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+    /* Graph positions */
+    #graph-monthly-volume       { grid-column: 1; grid-row: 1; }
+    #graph-monthly-transactions { grid-column: 2; grid-row: 1; }
+    #graph-ytd-volume           { grid-column: 1; grid-row: 2; }
+    #graph-ytd-transactions     { grid-column: 2; grid-row: 2; }
+
+    .graph {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 600px;
+      width: 100%;
+    }
+    .graph img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+
+    /* FOOTER-LIKE SECTION for form & Admin button */
+    .footer-section {
+      text-align: center;
+      padding: 20px;
+      background-color: #ffffff;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+    .footer-content {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    /* FORM STYLING */
+    form {
+      margin: 0; /* We'll manage spacing via the .footer-content gap */
+    }
+    form label {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    form input[type="month"] {
+      padding: 10px;
+      font-size: 1rem;
+      width: 150px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    form button {
+      background-color: #007bff;
+      color: rgb(0, 0, 0);
+      border: none;
+      padding: 5px 15px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    form button:hover {
+      background-color: #0056b3;
+    }
+
+    /* ADMIN BUTTON */
+    .admin-button {
+      background-color: #007bff;
+      color: rgb(0, 0, 0);
+      border: 2px solid white;
+      padding: 8px 15px;
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .admin-button:hover {
+      background-color: #0056b3;
+      color: white;
+      border: 2px solid #0056b3;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .header-content h1 {
+        font-size: 1.6rem; /* slightly smaller text on mobile */
+      }
+      .header-content img {
+        width: 80px; /* smaller logo on mobile */
+      }
+      .graphs-grid {
+        grid-template-columns: 1fr; /* One column for graphs on mobile */
+      }
+      .footer-content {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with logo next to the text -->
+  <div class="header">
+    <div class="header-content">
+      <img src="/static/logo_killebrew-thegroup.png" alt="Logo">
+      <h1>Agent Leaderboard</h1>
+    </div>
+  </div>
+
+  <!-- Main Container for Graphs -->
+  <div class="container">
+    <div class="graphs-grid">
+      <!-- TOP LEFT: Monthly Volume -->
+      <div class="graph" id="graph-monthly-volume">
+        <img
+          id="monthly-volume-graph"
+          data-src="/graphs?graph=monthly_volume&month={{ current_month }}"
+          alt="Monthly Volume"
+          src="/static/loading.png"
+        />
+      </div>
+
+      <!-- TOP RIGHT: Monthly Transactions -->
+      <div class="graph" id="graph-monthly-transactions">
+        <img
+          id="monthly-transactions-graph"
+          data-src="/graphs?graph=monthly_transactions&month={{ current_month }}"
+          alt="Monthly Transactions"
+          src="/static/loading.png"
+        />
+      </div>
+
+      <!-- BOTTOM LEFT: YTD Volume -->
+      <div class="graph" id="graph-ytd-volume">
+        <img
+          id="ytd-volume-graph"
+          data-src="/graphs?graph=ytd_volume"
+          alt="YTD Volume"
+          src="/static/loading.png"
+        />
+      </div>
+
+      <!-- BOTTOM RIGHT: YTD Transactions -->
+      <div class="graph" id="graph-ytd-transactions">
+        <img
+          id="ytd-transactions-graph"
+          data-src="/graphs?graph=ytd_transactions"
+          alt="YTD Transactions"
+          src="/static/loading.png"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer-like section for the form & Admin button -->
+  <div class="footer-section">
+    <div class="footer-content">
+      <!-- Form to pick which month the "monthly" graphs should display -->
+      <form id="month-form">
+        <label for="month">Select Month:</label>
+        <input
+          type="month"
+          id="month"
+          name="month"
+          value="{{ current_month }}"
+          required
+        >
+        <button type="submit">Update</button>
+      </form>
+
+      <!-- Admin Panel Button -->
+      <a href="/admin" class="admin-button">Admin Panel</a>
+    </div>
+  </div>
+
+  <!-- JavaScript for loading the graphs and auto-refresh -->
+  <script>
+    function loadGraphsSequentially(graphs) {
+      if (graphs.length === 0) return;
+
+      const graph = graphs.shift();
+      const img = graph.querySelector('img');
+      const src = img.dataset.src;
+
+      if (!src || src === 'undefined') {
+        console.error(`Invalid data-src for ${img.id}`);
+        img.src = "/static/error.png";
+        loadGraphsSequentially(graphs);
+        return;
+      }
+
+      console.log(`Loading graph: ${img.id} from ${src}`);
+      img.src = src;
+
+      img.onload = () => {
+        console.log(`Successfully loaded: ${img.id}`);
+        loadGraphsSequentially(graphs);
+      };
+
+      img.onerror = () => {
+        console.error(`Failed to load: ${img.id}`);
+        img.src = "/static/error.png";
+        loadGraphsSequentially(graphs);
+      };
+    }
+
+    function reloadAllGraphs() {
+      const graphs = Array.from(document.querySelectorAll('.graph'));
+      loadGraphsSequentially(graphs);
+    }
+
+    // Load graphs on initial page load
+    window.onload = () => {
+      reloadAllGraphs();
+    };
+
+    // Handle form submission to update the monthly graphs
+    document.getElementById('month-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const selectedMonth = document.getElementById('month').value;
+
+      // Update data-src for monthly volume & transactions
+      document.getElementById('monthly-volume-graph').dataset.src =
+        `/graphs?graph=monthly_volume&month=${selectedMonth}`;
+      document.getElementById('monthly-transactions-graph').dataset.src =
+        `/graphs?graph=monthly_transactions&month=${selectedMonth}`;
+
+      // If you want YTD to also adapt to the selected month, uncomment:
+      // document.getElementById('ytd-volume-graph').dataset.src =
+      //   `/graphs?graph=ytd_volume&month=${selectedMonth}`;
+      // document.getElementById('ytd-transactions-graph').dataset.src =
+      //   `/graphs?graph=ytd_transactions&month=${selectedMonth}`;
+
+      reloadAllGraphs();
+    });
+
+    // Automatically reload the graphs every 5 seconds
+    setInterval(() => {
+      reloadAllGraphs();
+    }, 5000);
+  </script>
+</body>
+</html>
