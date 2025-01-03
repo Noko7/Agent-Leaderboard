@@ -9,6 +9,13 @@
 
 
   <style>
+    .warning-text {
+      display: block;
+      margin-bottom: 10px;
+      color: #c62828; /* Red color for warning */
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
     /* Global Reset and Base Styles */
     * {
       box-sizing: border-box;
@@ -237,6 +244,39 @@
         <button type="submit" name="remove_transaction">Remove Transaction</button>
       </form>
     </div>
+
+    <!-- Edit Agent Name -->
+    <div class="form-section">
+      <h2>Edit Agent Name</h2>
+      <span class="warning-text">This cannot be undone and will effect associated records.</span>
+      <form method="POST" action="/change_agent_name" class="ajax-form">
+        <select name="agent_id" required>
+          <option value="">Select Agent</option>
+          {% for agent in agents %}
+          <option value="{{ agent[0] }}">{{ agent[1] }}</option>
+          {% endfor %}
+        </select>
+        <input type="text" name="new_name" placeholder="New Name" required>
+        <button type="submit">Change Name</button>
+      </form>
+    </div>
+    
+
+    <!-- Deactivate Agent -->
+    <!-- <div class="form-section">
+      <h2>Deactivate Agent</h2>
+      <form method="POST" action="/deactivate_agent">
+        <select name="agent_id" required>
+          <option value="">Select Agent</option>
+          {% for agent in agents %}
+          {% if agent[2] == 'active' %}
+          <option value="{{ agent[0] }}">{{ agent[1] }}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+        <button type="submit">Deactivate Agent</button>
+      </form>
+    </div> -->
 
 
 

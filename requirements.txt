@@ -1,2 +1,4 @@
 Flask
 matplotlib
+waitress
+markupsafe

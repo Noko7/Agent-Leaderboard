@@ -201,6 +201,110 @@ def serve_graph():
 
 from flask import Flask, render_template, request, redirect, url_for
 
+# @app.route('/deactivate_agent', methods=['POST'])
+# def deactivate_agent():
+    # conn = sqlite3.connect(DB_PATH)
+    # cursor = conn.cursor()
+    # message = None
+
+    # try:
+    #     # Fetch and validate the agent_id
+    #     agent_id = escape(request.form['agent_id']).strip()
+
+    #     # Check if the agent exists and is active
+    #     cursor.execute('SELECT id, name FROM agents WHERE id = ? AND status = "active"', (agent_id,))
+    #     agent = cursor.fetchone()
+
+    #     if agent:
+    #         # Update the agent's status to inactive and rename them to "Other"
+    #         cursor.execute('UPDATE agents SET status = "inactive", name = "Other" WHERE id = ?', (agent_id,))
+    #         conn.commit()
+    #         message = f"Agent {agent[1]} has been deactivated and renamed to 'Other'."
+    #     else:
+    #         message = "Agent not found or already inactive."
+    # except sqlite3.Error as e:
+    #     message = f"Database error: {escape(str(e))}"
+    # except Exception as e:
+    #     message = f"An unexpected error occurred: {escape(str(e))}"
+    # finally:
+    #     conn.close()
+
+    # return redirect(url_for('admin_panel', message=message))
+
+@app.route('/change_agent_name', methods=['POST'])
+def change_agent_name():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    message = None
+
+    try:
+        # Fetch and validate input data
+        agent_id = escape(request.form['agent_id']).strip()
+        new_name = escape(request.form['new_name']).strip()
+
+        # Ensure the agent exists
+        cursor.execute('SELECT id, name FROM agents WHERE id = ?', (agent_id,))
+        agent = cursor.fetchone()
+
+        if agent:
+            # Check if the new name is already taken
+            cursor.execute('SELECT id FROM agents WHERE name = ?', (new_name,))
+            existing_agent = cursor.fetchone()
+
+            if existing_agent:
+                message = f"An agent with the name '{new_name}' already exists. Please choose a different name."
+            else:
+                # Safely update the agent's name
+                cursor.execute('UPDATE agents SET name = ? WHERE id = ?', (new_name, agent_id))
+                conn.commit()
+                message = f"Agent {agent[1]} has been renamed to '{new_name}'."
+        else:
+            message = "Agent not found."
+    except sqlite3.Error as e:
+        message = f"Database error: {escape(str(e))}"
+    except Exception as e:
+        message = f"An unexpected error occurred: {escape(str(e))}"
+    finally:
+        conn.close()
+
+    return redirect(url_for('admin_panel', message=message))
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    message = None
+
+    try:
+        # Safely fetch form data
+        agent_id = escape(request.form['agent_id']).strip()
+        new_name = escape(request.form['new_name']).strip()
+
+        # Ensure the agent exists
+        cursor.execute('SELECT id FROM agents WHERE id = ?', (agent_id,))
+        agent = cursor.fetchone()
+
+        if agent:
+            # Ensure the new name is not already taken
+            cursor.execute('SELECT id FROM agents WHERE name = ?', (new_name,))
+            existing_agent = cursor.fetchone()
+
+            if existing_agent:
+                message = f"An agent with the name '{new_name}' already exists. Please choose a different name."
+            else:
+                # Safely update the agent's name
+                cursor.execute('UPDATE agents SET name = ? WHERE id = ?', (new_name, agent_id))
+                conn.commit()
+                message = f"Agent name changed successfully to '{new_name}'."
+        else:
+            message = "Agent not found."
+    except sqlite3.Error as e:
+        message = f"Database error: {escape(str(e))}"
+    except Exception as e:
+        message = f"An unexpected error occurred: {escape(str(e))}"
+    finally:
+        conn.close()
+
+    return redirect(url_for('admin_panel', message=message))
+
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_panel():
