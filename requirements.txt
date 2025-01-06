@@ -2,3 +2,10 @@ Flask
 matplotlib
 waitress
 markupsafe
+
+
+
+based on this app and how its made, how much do you think would be a good price for someone to pay me to make this app considering 
+its my first time someone is paying me to make an app? 
+
+

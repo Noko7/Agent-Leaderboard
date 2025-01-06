@@ -77,13 +77,35 @@
     }
 
     /* Messages */
-    .message {
+      .message {
       margin-bottom: 20px;
       padding: 12px;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .message.success {
       background-color: #e8f5e9;
       border: 1px solid #4caf50;
       color: #4caf50;
-      border-radius: 5px;
+    }
+
+    .message.error {
+      background-color: #fdecea;
+      border: 1px solid #f44336;
+      color: #f44336;
+    }
+
+    .message.warning {
+      background-color: #fff8e1;
+      border: 1px solid #ff9800;
+      color: #ff9800;
+    }
+
+    .message.info {
+      background-color: #e3f2fd;
+      border: 1px solid #2196f3;
+      color: #2196f3;
     }
 
     /* Form Sections */
@@ -181,14 +203,17 @@
 
     <h1>Admin Panel</h1>
 
-    <!-- Display Message -->
-    {% if message %}
-    <div class="message">{{ message }}</div>
-    {% endif %}
+  <!-- Display Message -->
+  {% if message %}
+  <div class="message {{ status }}">
+    {{ message }}
+  </div>
+  {% endif %}
 
     <!-- Add Transaction -->
     <div class="form-section">
       <h2>Add Transaction</h2>
+      <span class="warning-text">Updates leaderboard every 15 minutes.</span>
       <form method="POST">
         <select name="transaction_agent_id" required>
           <option value="">Select Agent</option>
@@ -249,6 +274,7 @@
     <div class="form-section">
       <h2>Edit Agent Name</h2>
       <span class="warning-text">This cannot be undone and will effect associated records.</span>
+      <span class="warning-text">Duplicates are not allowed.</span>
       <form method="POST" action="/change_agent_name" class="ajax-form">
         <select name="agent_id" required>
           <option value="">Select Agent</option>
