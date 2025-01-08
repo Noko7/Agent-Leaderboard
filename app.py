@@ -20,6 +20,60 @@ if not os.path.exists(CACHE_DIR):
 
 # Initialize the database
 def initialize_database():
+    """
+    Initializes the database:
+    - Ensures necessary tables exist.
+    - Adds missing columns if required.
+    - Populates sample data for demo purposes.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Create the agents table if it does not exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS agents (
+            id INTEGER PRIMARY KEY,
+            name TEXT UNIQUE NOT NULL
+        )
+    ''')
+
+    # Create the transactions table if it does not exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY,
+            agent_id INTEGER,
+            volume REAL,
+            date TEXT,
+            FOREIGN KEY (agent_id) REFERENCES agents(id)
+        )
+    ''')
+
+    # Check if the 'address' column exists in the transactions table
+    cursor.execute('PRAGMA table_info(transactions)')
+    columns = [column[1] for column in cursor.fetchall()]
+    if 'address' not in columns:
+        cursor.execute('ALTER TABLE transactions ADD COLUMN address TEXT')
+
+    # Populate the agents table with sample data (demo purposes only)
+    ## sample_agents = [('Alice',), ('Bob',), ('Charlie',)]
+    ##cursor.executemany(
+    ##    'INSERT OR IGNORE INTO agents (name) VALUES (?)',
+    ##    sample_agents
+    ##)
+
+    # Populate the transactions table with sample data (demo purposes only)
+    sample_transactions = [
+        (1, 50000.0, '2025-01-01', '123 Main St'),
+        (2, 75000.0, '2025-01-02', '456 Elm St'),
+        (3, 60000.0, '2025-01-03', '789 Pine St')
+    ]
+    cursor.executemany(
+        'INSERT OR IGNORE INTO transactions (agent_id, volume, date, address) VALUES (?, ?, ?, ?)',
+        sample_transactions
+    )
+
+    conn.commit()
+    conn.close()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
@@ -459,6 +513,72 @@ from flask import session, redirect, url_for, render_template
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_panel():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    message = request.args.get('message', None)  # Retrieve message from query parameters
+    status = request.args.get('status', None)    # Retrieve status from query parameters
+
+    try:
+        # Fetch agents and transactions from the database
+        agents = cursor.execute('SELECT * FROM agents').fetchall()
+        transactions = cursor.execute('''
+            SELECT t.id, a.name, t.volume, t.date, t.address
+            FROM transactions t
+            JOIN agents a ON t.agent_id = a.id
+        ''').fetchall()
+
+        if request.method == 'POST':
+            if 'add_agent' in request.form:
+                agent_name = request.form['agent_name'].strip()
+                try:
+                    cursor.execute('INSERT INTO agents (name) VALUES (?)', (agent_name,))
+                    conn.commit()
+                    return redirect(url_for('admin_panel', message=f"Agent '{agent_name}' added successfully!", status="success"))
+                except sqlite3.IntegrityError:
+                    return redirect(url_for('admin_panel', message=f"Agent '{agent_name}' already exists.", status="error"))
+
+            elif 'add_transaction' in request.form:
+                agent_id = request.form['transaction_agent_id']
+                volume = float(request.form['transaction_volume'])
+                date = request.form['transaction_date']
+                address = request.form['transaction_address'].strip()
+                cursor.execute(
+                    'INSERT INTO transactions (agent_id, volume, date, address) VALUES (?, ?, ?, ?)',
+                    (agent_id, volume, date, address)
+                )
+                conn.commit()
+                return redirect(url_for('admin_panel', message="Transaction added successfully!", status="success"))
+
+            elif 'remove_agent' in request.form:
+                agent_id = request.form['agent_id']
+                cursor.execute('DELETE FROM agents WHERE id = ?', (agent_id,))
+                cursor.execute('DELETE FROM transactions WHERE agent_id = ?', (agent_id,))
+                conn.commit()
+                return redirect(url_for('admin_panel', message="Agent removed successfully!", status="success"))
+
+            elif 'remove_transaction' in request.form:
+                transaction_id = request.form['transaction_id']
+                cursor.execute('DELETE FROM transactions WHERE id = ?', (transaction_id,))
+                conn.commit()
+                return redirect(url_for('admin_panel', message="Transaction removed successfully!", status="success"))
+
+    except sqlite3.Error as e:
+        message = f"Database error: {e}"
+        status = "error"
+        agents = []
+        transactions = []
+
+    finally:
+        conn.close()
+
+    return render_template(
+        'admin.html',
+        agents=agents,
+        transactions=transactions,
+        message=message,
+        status=status
+    )
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     message = None
@@ -1057,6 +1177,7 @@ def admin_panel():
         conn.close()
 
     return render_template('admin.html', agents=agents, transactions=transactions, message=message)
+
 # Initialize the database before starting the app
 initialize_database()
 
